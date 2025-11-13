@@ -5,7 +5,7 @@ sudo yum update -y
 sudo yum install -y python3 python3-pip git
 
 PROJECT_DIR="AWS-PrimeraEntrega"
-REPO_URL="${1:-https://github.com/abrahamcruzc/AWSCloudFoundations-Projecto.git}"
+REPO_URL="${1:-https://github.com/abrahamcruzc/AWSCloudFoundations-Proyecto.git}"
 
 if [[ ! -d ${PROJECT_DIR} ]]; then
   git clone "${REPO_URL}" "${PROJECT_DIR}"
