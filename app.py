@@ -97,7 +97,7 @@ def handle_value_error(err):
     return jsonify({"error": str(err)}), 400
 
 
-@app.get('/alumno')
+@app.get('/alumnos')
 def listar_alumnos():
     try:
         return jsonify(alumnos), 200
@@ -105,7 +105,7 @@ def listar_alumnos():
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.get('/alumno/<int:alumno_id>')
+@app.get('/alumnos/<int:alumno_id>')
 def obtener_alumno(alumno_id):
     try:
         alumno = buscar_por_id(alumnos, alumno_id)
@@ -116,7 +116,7 @@ def obtener_alumno(alumno_id):
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.post('/alumno')
+@app.post('/alumnos')
 def crear_alumno():
     try:
         payload = obtener_json()
@@ -133,7 +133,7 @@ def crear_alumno():
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.put('/alumno/<int:alumno_id>')
+@app.put('/alumnos/<int:alumno_id>')
 def actualizar_alumno(alumno_id):
     try:
         alumno = buscar_por_id(alumnos, alumno_id)
@@ -153,7 +153,7 @@ def actualizar_alumno(alumno_id):
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.delete('/alumno/<int:alumno_id>')
+@app.delete('/alumnos/<int:alumno_id>')
 def eliminar_alumno(alumno_id):
     try:
         alumno = buscar_por_id(alumnos, alumno_id)
@@ -166,7 +166,7 @@ def eliminar_alumno(alumno_id):
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.get('/profesor')
+@app.get('/profesores')
 def listar_profesores():
     try:
         return jsonify(profesores), 200
@@ -174,7 +174,7 @@ def listar_profesores():
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.get('/profesor/<int:profesor_id>')
+@app.get('/profesores/<int:profesor_id>')
 def obtener_profesor(profesor_id):
     try:
         profesor = buscar_por_id(profesores, profesor_id)
@@ -185,7 +185,7 @@ def obtener_profesor(profesor_id):
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.post('/profesor')
+@app.post('/profesores')
 def crear_profesor():
     try:
         payload = obtener_json()
@@ -202,7 +202,7 @@ def crear_profesor():
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.put('/profesor/<int:profesor_id>')
+@app.put('/profesores/<int:profesor_id>')
 def actualizar_profesor(profesor_id):
     try:
         profesor = buscar_por_id(profesores, profesor_id)
@@ -222,7 +222,7 @@ def actualizar_profesor(profesor_id):
         return jsonify({"error": "Error interno del servidor"}), 500
 
 
-@app.delete('/profesor/<int:profesor_id>')
+@app.delete('/profesores/<int:profesor_id>')
 def eliminar_profesor(profesor_id):
     try:
         profesor = buscar_por_id(profesores, profesor_id)
