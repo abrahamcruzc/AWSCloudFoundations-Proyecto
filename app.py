@@ -18,18 +18,26 @@ def buscar_por_id(items, entity_id):
     return next((item for item in items if item["id"] == entity_id), None)
 
 
-def validar_alumno(data):
-    requeridos = ("nombres", "apellidos", "matricula", "promedio")
+def validar_alumno(data, requiere_id=False):
+    requeridos = ["nombres", "apellidos", "matricula", "promedio"]
+    if requiere_id:
+        requeridos.append("id")
+
     for campo in requeridos:
         if campo not in data:
             return False, f"Campo '{campo}' es requerido"
+
+    # Validar ID si se requiere
+    if requiere_id:
+        if not isinstance(data["id"], int) or data["id"] <= 0:
+            return False, "El campo 'id' debe ser un entero positivo"
 
     try:
         promedio = float(data["promedio"])
     except (TypeError, ValueError):
         return False, "El campo 'promedio' debe ser un número"
 
-    if not 0 <= promedio <= 100:
+    if promedio < 0 or promedio > 100:
         return False, "El promedio debe estar entre 0 y 100"
 
     if not isinstance(data["nombres"], str) or not data["nombres"].strip():
@@ -47,17 +55,34 @@ def validar_alumno(data):
         "matricula": data["matricula"].strip(),
         "promedio": promedio,
     }
+
+    if requiere_id:
+        alumno_validado["id"] = data["id"]
+
     return True, alumno_validado
 
 
-def validar_profesor(data):
-    requeridos = ("numeroEmpleado", "nombres", "apellidos", "horasClase")
+def validar_profesor(data, requiere_id=False):
+    requeridos = ["numeroEmpleado", "nombres", "apellidos", "horasClase"]
+    if requiere_id:
+        requeridos.append("id")
+
     for campo in requeridos:
         if campo not in data:
             return False, f"Campo '{campo}' es requerido"
 
-    if not isinstance(data["numeroEmpleado"], str) or not data["numeroEmpleado"].strip():
-        return False, "Campo 'numeroEmpleado' debe ser string no vacío"
+    # Validar ID si se requiere
+    if requiere_id:
+        if not isinstance(data["id"], int) or data["id"] <= 0:
+            return False, "El campo 'id' debe ser un entero positivo"
+
+    # Validar numeroEmpleado (puede ser int o string)
+    try:
+        numero_empleado = int(data["numeroEmpleado"])
+        if numero_empleado <= 0:
+            return False, "El campo 'numeroEmpleado' debe ser un entero positivo"
+    except (TypeError, ValueError):
+        return False, "El campo 'numeroEmpleado' debe ser un entero positivo"
 
     if not isinstance(data["nombres"], str) or not data["nombres"].strip():
         return False, "Campo 'nombres' debe ser string no vacío"
@@ -65,6 +90,7 @@ def validar_profesor(data):
     if not isinstance(data["apellidos"], str) or not data["apellidos"].strip():
         return False, "Campo 'apellidos' debe ser string no vacío"
 
+    # Validar horasClase
     horas = data["horasClase"]
     if isinstance(horas, bool):
         return False, "El campo 'horasClase' debe ser un entero positivo"
@@ -73,15 +99,19 @@ def validar_profesor(data):
     except (TypeError, ValueError):
         return False, "El campo 'horasClase' debe ser un entero positivo"
 
-    if horas_int <= 0:
-        return False, "El campo 'horasClase' debe ser un entero positivo"
+    if horas_int < 0:
+        return False, "El campo 'horasClase' debe ser un entero positivo o cero"
 
     profesor_validado = {
-        "numeroEmpleado": data["numeroEmpleado"].strip(),
+        "numeroEmpleado": numero_empleado,
         "nombres": data["nombres"].strip(),
         "apellidos": data["apellidos"].strip(),
         "horasClase": horas_int,
     }
+
+    if requiere_id:
+        profesor_validado["id"] = data["id"]
+
     return True, profesor_validado
 
 
@@ -120,13 +150,16 @@ def obtener_alumno(alumno_id):
 def crear_alumno():
     try:
         payload = obtener_json()
-        es_valido, alumno_data = validar_alumno(payload)
+        es_valido, alumno_data = validar_alumno(payload, requiere_id=True)
         if not es_valido:
             return jsonify({"error": alumno_data}), 400
 
-        nuevo_alumno = {"id": generar_id(alumnos), **alumno_data}
-        alumnos.append(nuevo_alumno)
-        return jsonify(nuevo_alumno), 201
+        # Verificar si ya existe un alumno con ese ID
+        if buscar_por_id(alumnos, alumno_data["id"]) is not None:
+            return jsonify({"error": f"Ya existe un alumno con id {alumno_data['id']}"}), 400
+
+        alumnos.append(alumno_data)
+        return jsonify(alumno_data), 201
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
     except Exception:
@@ -189,13 +222,16 @@ def obtener_profesor(profesor_id):
 def crear_profesor():
     try:
         payload = obtener_json()
-        es_valido, profesor_data = validar_profesor(payload)
+        es_valido, profesor_data = validar_profesor(payload, requiere_id=True)
         if not es_valido:
             return jsonify({"error": profesor_data}), 400
 
-        nuevo_profesor = {"id": generar_id(profesores), **profesor_data}
-        profesores.append(nuevo_profesor)
-        return jsonify(nuevo_profesor), 201
+        # Verificar si ya existe un profesor con ese ID
+        if buscar_por_id(profesores, profesor_data["id"]) is not None:
+            return jsonify({"error": f"Ya existe un profesor con id {profesor_data['id']}"}), 400
+
+        profesores.append(profesor_data)
+        return jsonify(profesor_data), 201
     except ValueError as err:
         return jsonify({"error": str(err)}), 400
     except Exception:
